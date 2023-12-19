@@ -59,7 +59,7 @@ export class AppComponent {
     const isSamsungBrowser = /SamsungBrowser/i.test(navigator.userAgent);
     
     // If the user is on mobile Chrome, use DirectUrl, otherwise use Blob
-    return (isMobile && (isChrome || isSamsungBrowser)) ? LoadMethod.DirectUrl : LoadMethod.Blob;
+    return (isMobile && (isChrome || isSamsungBrowser)) ? LoadMethod.DirectUrl : LoadMethod.DataUrl;
 }
 
   async loadPdfIntoIframe(pdfUrl: string, iframeId: string): Promise<void> {
