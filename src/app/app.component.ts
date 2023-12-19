@@ -36,16 +36,36 @@ export class AppComponent {
 
   ngOnInit(){
 
+    
     this.loadPdfIntoIframe(
       "https://mapservice.alriyadh.gov.sa/BuildingSystem/building-code-report-experimental?parcelId=14289493",
-      "pdf-id",
-      LoadMethod.DirectUrl
+      "pdf-id"
       )
 
   }
 
+  /* 
+    // Check if the user is using Chrome
+    const isChrome = /Chrome/i.test(navigator.userAgent) && /Google Inc/i.test(navigator.vendor);
+ */
 
-  async loadPdfIntoIframe(pdfUrl: string, iframeId: string, method: LoadMethod): Promise<void> {
+  getLoadMethod(): LoadMethod {
+    // Check if the user is on a mobile device
+    const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+
+    // Check if the user is using Chrome
+    const isChrome = /Chrome/i.test(navigator.userAgent) && !/Edge/i.test(navigator.userAgent)
+    // Check for Samsung Internet browser
+    const isSamsungBrowser = /SamsungBrowser/i.test(navigator.userAgent);
+    
+    // If the user is on mobile Chrome, use DirectUrl, otherwise use Blob
+    return (isMobile && (isChrome || isSamsungBrowser)) ? LoadMethod.DirectUrl : LoadMethod.Blob;
+}
+
+  async loadPdfIntoIframe(pdfUrl: string, iframeId: string): Promise<void> {
+
+    const method = this.getLoadMethod();
+
     try {
         // Get the iframe element
         const iframe = document.getElementById(iframeId) as HTMLIFrameElement;
@@ -154,7 +174,7 @@ export class AppComponent {
   }
   
 }
-
+/* 
 
 const a = ""
 type t = string | number | null
@@ -195,3 +215,4 @@ const constantPalette = {
 console.log(constantPalette.green);
 
 
+ */
