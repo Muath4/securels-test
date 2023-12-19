@@ -30,8 +30,38 @@ export class AppComponent {
 
   ngOnInit(){
 
+    this.loadPdfIntoIframe("https://mapservice.alriyadh.gov.sa/BuildingSystem/building-code-report-experimental?parcelId=14289493","pdf-id")
 
   }
+
+
+  async loadPdfIntoIframe(pdfUrl: string, iframeId: string): Promise<void> {
+    try {
+        // Fetch the PDF from the URL
+        const response = await fetch(pdfUrl);
+        if (!response.ok) {
+            throw new Error(`HTTP error! Status: ${response.status}`);
+        }
+
+        // Convert the response to a Blob
+        const pdfBlob = await response.blob();
+
+        // Create a URL for the Blob
+        const blobUrl = URL.createObjectURL(pdfBlob);
+
+        // Get the iframe element
+        const iframe = document.getElementById(iframeId) as HTMLIFrameElement;
+        if (!iframe) {
+            throw new Error('Iframe not found');
+        }
+
+        // Set the Blob URL as the source of the iframe
+        iframe.src = blobUrl;
+    } catch (error) {
+        console.error('Error loading PDF into iframe:', error);
+    }
+}
+
 
   encrypt(){
 
@@ -56,7 +86,31 @@ export class AppComponent {
   }
 
   longEncrypt(){
-
+    /* if ('OTPCredential' in window) {
+      window.addEventListener('DOMContentLoaded', (e: Event) => {
+        const input = document.querySelector('input[autocomplete="one-time-code"]') as HTMLInputElement;
+        if (!input) return;
+    
+        const ac = new AbortController();
+        const form = input.closest('form') as HTMLFormElement | null;
+    
+        if (form) {
+          form.addEventListener('submit', (e: Event) => {
+            ac.abort();
+          });
+        }
+    
+        navigator.credentials.get({
+          otp: { transport:['sms'] },
+          signal: ac.signal
+        }).then((otp: OTPCredential) => {
+          input.value = otp.code;
+          if (form) form.submit();
+        }).catch((err: Error) => {
+          console.log(err);
+        });
+      });
+    } */
     
     if (!this.formControl.value || this.formControl.value < 1) {
       alert("يجب إدخال عدد أكبر من 0")
@@ -76,4 +130,46 @@ export class AppComponent {
     alert("تم بنجاح التشفير وفك التشفير "+ (this.formControl.value) + " مرة")
 
   }
+  
 }
+
+
+const a = ""
+type t = string | number | null
+type c = Exclude<t, string>
+
+function isString(test: any): test is string{
+  return typeof test === "string";
+}
+
+function example(foo: any){
+  if(isString(foo)){
+      console.log("it is a string" + foo);
+      console.log(foo.length); // string function
+  }
+}
+example("hello world");
+
+
+type RGB = readonly [red: number, green: number, blue: number];
+type Color = RGB | string;
+
+const palette = {
+    red: [255, 0, 0],
+    green: "#00ff00",
+    blue: [1,2,3],
+} satisfies Record<string, Color>;
+
+console.log(palette.green);
+//                   ^? green is string
+
+
+const constantPalette = {
+    red: [255, 0, 0],
+    green: "#00ff00",
+    blue: [1,2,3],
+} as const satisfies Record<string, Color>;
+
+console.log(constantPalette.green);
+
+
