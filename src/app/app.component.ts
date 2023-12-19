@@ -30,12 +30,17 @@ export class AppComponent {
 
   ngOnInit(){
 
-    this.loadPdfIntoIframe("https://mapservice.alriyadh.gov.sa/BuildingSystem/building-code-report-experimental?parcelId=14289493","pdf-id")
+    this.loadPdfIntoIframe(
+      "https://mapservice.alriyadh.gov.sa/BuildingSystem/building-code-report-experimental?parcelId=14289493",
+      "pdf-id",
+       false
+      )
 
   }
 
 
-  async loadPdfIntoIframe(pdfUrl: string, iframeId: string): Promise<void> {
+  frameSrc: String | undefined
+  async loadPdfIntoIframe(pdfUrl: string, iframeId: string, useBlob: boolean): Promise<void> {
     try {
         // Fetch the PDF from the URL
         const response = await fetch(pdfUrl);
@@ -46,8 +51,21 @@ export class AppComponent {
         // Convert the response to a Blob
         const pdfBlob = await response.blob();
 
-        // Create a URL for the Blob
-        const blobUrl = URL.createObjectURL(pdfBlob);
+        let url: string;
+
+        // Create a URL for the Blob or convert to data URL based on the parameter
+        if (useBlob) {
+            // Create a Blob URL
+            url = URL.createObjectURL(pdfBlob);
+        } else {
+            // Convert Blob to data URL
+            url = await new Promise((resolve, reject) => {
+                const reader = new FileReader();
+                reader.onloadend = () => resolve(reader.result as string);
+                reader.onerror = reject;
+                reader.readAsDataURL(pdfBlob);
+            });
+        }
 
         // Get the iframe element
         const iframe = document.getElementById(iframeId) as HTMLIFrameElement;
@@ -55,8 +73,8 @@ export class AppComponent {
             throw new Error('Iframe not found');
         }
 
-        // Set the Blob URL as the source of the iframe
-        iframe.src = blobUrl;
+        // Set the URL as the source of the iframe
+        iframe.src = url;
     } catch (error) {
         console.error('Error loading PDF into iframe:', error);
     }
